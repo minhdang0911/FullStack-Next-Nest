@@ -1,4 +1,4 @@
-import { IsEmpty } from 'class-validator';
+import {IsNotEmpty } from 'class-validator';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
@@ -6,7 +6,8 @@ export type UserDocument = HydratedDocument<User>;
 
 @Schema({ timestamps: true })
 export class User {
-  @IsEmpty()
+  @Prop()
+  @IsNotEmpty()
   name: string;
 
   @Prop()
