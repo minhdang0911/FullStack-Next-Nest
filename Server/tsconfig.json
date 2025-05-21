@@ -10,7 +10,7 @@
     "sourceMap": true,
     "outDir": "./dist",
 
-    // 👇 CHỈNH LẠI 2 DÒNG NÀY
+   
     "baseUrl": "./src",
     "paths": {
       "@/*": ["*"]
