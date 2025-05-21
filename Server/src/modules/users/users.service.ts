@@ -7,6 +7,9 @@ import { User } from './schemas/user.schema';
 import { hashPasswordHelper } from '@/helpers/util';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
+import { CreateAuthDto } from '@/auth/dto/create-auth.dto';
+import { v4 as uuidv4 } from 'uuid';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class UsersService {
@@ -39,7 +42,7 @@ export class UsersService {
       address,
       image,
     });
-    console.log(user)
+    
     return {
       _id: user._id,
     };
@@ -78,6 +81,30 @@ export class UsersService {
        return this.userModel.deleteOne({_id})
     }else{
       throw new BadGatewayException("Id không đúng định dạng")
+    }
+  }
+
+  async handleRegister(registerDto :CreateAuthDto) {
+    const { name, email, password} = registerDto;
+    
+    //check email exist
+    const isExist = await this.isEmailExist(email)
+    if(isExist){
+      throw new BadGatewayException(`Email ${email} đã tồn tại. Vui lòng sử dụng email khác`)
+    }
+
+   
+    const hashPassword = await hashPasswordHelper(password);
+    const user = await this.userModel.create({
+      name,
+      email,
+      password: hashPassword,
+      isActive:false,
+      codeId : uuidv4(),
+      codeExpired:dayjs().add(1,'minutes'),
+    });
+    return {
+      _id: user._id
     }
   }
 }
