@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { AdminContext } from '@/library/admin.context';
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import { Button, Layout } from 'antd';
@@ -51,12 +51,12 @@ const AdminHeader = () => {
             <Header
                 style={{
                     padding: 0,
-                    display: "flex",
-                    background: "#f5f5f5",
-                    justifyContent: "space-between",
-                    alignItems: "center"
-                }} >
-
+                    display: 'flex',
+                    background: '#f5f5f5',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                }}
+            >
                 <Button
                     type="text"
                     icon={collapseMenu ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -67,9 +67,10 @@ const AdminHeader = () => {
                         height: 64,
                     }}
                 />
-                <Dropdown menu={{ items }} >
-                    <a onClick={(e) => e.preventDefault()}
-                        style={{ color: "unset", lineHeight: "0 !important", marginRight: 20 }}
+                <Dropdown menu={{ items }}>
+                    <a
+                        onClick={(e) => e.preventDefault()}
+                        style={{ color: 'unset', lineHeight: '0 !important', marginRight: 20 }}
                     >
                         <Space>
                             Welcome Admin
@@ -79,7 +80,7 @@ const AdminHeader = () => {
                 </Dropdown>
             </Header>
         </>
-    )
-}
+    );
+};
 
 export default AdminHeader;
