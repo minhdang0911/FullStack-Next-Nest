@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { authenticate } from '@/utils/action';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
+import ModalReactive from './modal.reactive';
 
 const CustomNotification = ({
     message,
@@ -48,20 +49,25 @@ const CustomNotification = ({
 
 const Login = () => {
     const router = useRouter();
+    const [userEmail, setUserEmail] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [notification, setNotification] = useState<{ message: string; description?: string } | null>(null);
 
     const onFinish = async (values: any) => {
         const { username, password } = values;
-        console.log('Calling authenticate with:', username, password);
+        setUserEmail('');
 
         const res = await authenticate(username, password);
-        console.log(res);
+        console.log(userEmail);
 
         if (res?.error) {
-            setNotification({ message: 'Error login', description: res.error });
             if (res?.code === 2) {
-                router.push('/verify');
+                setUserEmail(username);
+                setIsModalOpen(true);
+                return;
+                //    router.push('/verify');
             }
+            setNotification({ message: 'Error login', description: res.error });
         } else {
             router.push('/dashboard');
         }
@@ -124,7 +130,8 @@ const Login = () => {
                 </Col>
             </Row>
 
-            {/* Notification tự tạo */}
+            <ModalReactive userEmail={userEmail} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+
             {notification && (
                 <CustomNotification
                     message={notification.message}

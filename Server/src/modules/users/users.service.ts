@@ -140,4 +140,30 @@ export class UsersService {
     }
     
   }
+
+  async retryActive (email: string){
+    const user = await this.userModel.findOne({email})
+    const codeId = uuidv4()
+    if(!user){
+      throw new BadRequestException("Tài khoản không tồn tại")
+    }
+    if(user.isActive){
+       throw new BadRequestException("Tài khoản đã được kích hoạt")
+    }
+    await user.updateOne({
+      codeId : codeId ,
+      codeExpired:dayjs().add(5,'minutes'),
+    })
+
+    this.mailerService.sendMail({
+        to: user.email ,
+        subject: 'Kích hoạt tài khoản để đăng nhập', // Subject line
+        template:"retryEmail",
+        context:{
+          name:user.name ?? user.email,
+          activationCode:codeId
+        }
+    })
+    return {_id:user._id}
+  }
 }
