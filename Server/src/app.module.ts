@@ -14,10 +14,11 @@ import { OrdersModule } from '@/modules/orders/orders.module';
 import { RestaurantsModule } from '@/modules/restaurants/restaurants.module';
 import { ReviewsModule } from '@/modules/reviews/reviews.module';
 import { AuthModule } from '@/auth/auth.module';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/passport/jwt-auth.guard';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { TransformInterceptor } from './core/transform.interceptor';
 
 @Module({
   imports: [
@@ -71,9 +72,17 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
     
   ],
   controllers: [AppController],
-  providers: [AppService, {
+  providers: [
+    AppService, 
+    {
     provide: APP_GUARD,
     useClass: JwtAuthGuard,
-  },],
+    },
+    {
+      provide:APP_INTERCEPTOR,
+      useClass:TransformInterceptor
+    }
+
+],
 })
 export class AppModule { }
