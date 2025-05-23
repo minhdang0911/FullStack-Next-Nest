@@ -52,8 +52,11 @@ const Login = () => {
 
     const onFinish = async (values: any) => {
         const { username, password } = values;
+        console.log('Calling authenticate with:', username, password);
 
         const res = await authenticate(username, password);
+        console.log(res);
+
         if (res?.error) {
             setNotification({ message: 'Error login', description: res.error });
             if (res?.code === 2) {
