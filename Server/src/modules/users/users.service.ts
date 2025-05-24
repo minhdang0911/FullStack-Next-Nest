@@ -61,7 +61,15 @@ export class UsersService {
     const totalPages = Math.ceil(totalItems / pageSize)
     const skip = (+current -1) * (pageSize)
     const results = await this.userModel.find(filter).limit(pageSize).skip(skip).select("-password").sort(sort as any);
-    return {results,totalPages};
+    return {
+      meta:{
+        current:current,
+        pageSize:pageSize,
+        pages:totalPages,
+        total:totalItems,
+      },
+      results
+    };
   }
 
   findOne(id: number) {
