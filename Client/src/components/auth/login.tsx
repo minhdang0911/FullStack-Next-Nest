@@ -4,71 +4,37 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { authenticate } from '@/utils/action';
 import { useRouter } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
 import ModalReactive from './modal.reactive';
-
-const CustomNotification = ({
-    message,
-    description,
-    onClose,
-}: {
-    message: string;
-    description?: string;
-    onClose: () => void;
-}) => {
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            onClose();
-        }, 3000);
-        return () => clearTimeout(timer);
-    }, [onClose]);
-
-    return (
-        <div
-            style={{
-                position: 'fixed',
-                top: 20,
-                right: 20,
-                zIndex: 9999,
-                minWidth: 300,
-                padding: '16px 24px',
-                backgroundColor: '#fff',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                borderRadius: 4,
-                borderLeft: '5px solid #ff4d4f',
-                fontFamily: 'Arial, sans-serif',
-                cursor: 'pointer',
-            }}
-            onClick={onClose}
-        >
-            <div style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>{message}</div>
-            {description && <div style={{ fontSize: 14, color: '#555' }}>{description}</div>}
-        </div>
-    );
-};
+import { useState } from 'react';
+import ModalChangePassword from './modal.change.password';
+import { useNotification } from '@/Hooks/useNotification';
+import NotificationContainer from '@/components/NotificationContainer';
 
 const Login = () => {
     const router = useRouter();
-    const [userEmail, setUserEmail] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [notification, setNotification] = useState<{ message: string; description?: string } | null>(null);
+    const [userEmail, setUserEmail] = useState('');
+    const [changePassword, setChangePassword] = useState(false);
+
+    // Sử dụng custom notification
+    const { notifications, removeNotification, error, success } = useNotification();
 
     const onFinish = async (values: any) => {
         const { username, password } = values;
         setUserEmail('');
 
         const res = await authenticate(username, password);
-        console.log(userEmail);
 
         if (res?.error) {
             if (res?.code === 2) {
-                setUserEmail(username);
                 setIsModalOpen(true);
+                setUserEmail(username);
                 return;
-                //    router.push('/verify');
             }
-            setNotification({ message: 'Error login', description: res.error });
+            // Thay thế notification.error bằng custom notification
+            error('Error login', res?.error);
         } else {
+            success('Đăng nhập thành công!', 'Chuyển hướng đến dashboard...');
             router.push('/dashboard');
         }
     };
@@ -114,9 +80,20 @@ const Login = () => {
                             </Form.Item>
 
                             <Form.Item>
-                                <Button type="primary" htmlType="submit">
-                                    Login
-                                </Button>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Button type="primary" htmlType="submit">
+                                        Login
+                                    </Button>
+                                    <Button type="link" onClick={() => setChangePassword(true)}>
+                                        Quên mật khẩu ?
+                                    </Button>
+                                </div>
                             </Form.Item>
                         </Form>
                         <Link href={'/'}>
@@ -129,16 +106,11 @@ const Login = () => {
                     </fieldset>
                 </Col>
             </Row>
+            <ModalReactive isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} userEmail={userEmail} />
+            <ModalChangePassword isModalOpen={changePassword} setIsModalOpen={setChangePassword} />
 
-            <ModalReactive userEmail={userEmail} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
-
-            {notification && (
-                <CustomNotification
-                    message={notification.message}
-                    description={notification.description}
-                    onClose={() => setNotification(null)}
-                />
-            )}
+            {/* Custom Notification Container */}
+            <NotificationContainer notifications={notifications} onRemove={removeNotification} />
         </>
     );
 };
